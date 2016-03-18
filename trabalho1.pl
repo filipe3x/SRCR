@@ -124,9 +124,10 @@ profissional(andreia_goncalves, cirurgia, hospital_braga).
 profissional(vanessa_goncalves, cardiologia, hospital_sao_marcos).
 profissional(marta_caetano, nutricionismo, hospital_sao_marcos).
 
-listarProfissionais(P) :- profissional(P,_,_).
-listarProfissionaisNoServico(S,P) :- profissional(P,S,_).
-listarProfissionaisNaInstituicao(I,P) :- profissional(P,_,I).
+todosProfissionais(P) :- profissional(P,_,_).
+profissionaisNoServico(S,P) :- profissional(P,S,_).
+profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
+
 %falta
 adicionarProfessional.
 removerProfessional.
@@ -202,9 +203,25 @@ instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
 instituicoesComServicos([], []).
 instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
 
-% faltam as outras queries...
+% Identificar os serviços que não se podem encontrar numa instituição
 % ...
+
+% Determinar as instituições onde um profissional presta serviço
+listarProfissionaisNaInstituicao(I,P) :- findall(X, profissionaisNaInstituicao(I,X), P).
+
+% Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+utenteRecorreuInstituicao(U,I) :- findall(X, recorreuInstituicao(U,X), I).
+utenteRecorreuServico(U,S) :- findall(X, recorreuServico(U,X), S).
+utenteRecorreuProfissional(U,P) :- findall(X, recorreuProfissional(U,X), P).
+
+% Registar utentes, profissionais, serviços ou instituições
 % ...
+registar(Q).
+
+% Remover utentes (ou profissionais ou serviços ou instituições) dos registos
+% ...
+remover(Q).
+
 
 %Queries extra ------------------------------------------------------------------------------------------------------------------
 % ...
