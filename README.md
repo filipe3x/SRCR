@@ -5,10 +5,12 @@ Pequeno script em PROLOG com o intuito de simular uma base de dados de uma insti
 [sicstus](https://sicstus.sics.se) - interpretador de PROLOG
 
 ###Instrucoes
-Carregar script
-    | ?- [trabalho1].
 
+Carregar script
+
+    | ?- [trabalho1].
 Para sair
+
     | ?- halt.
 
 ###Exemplos
