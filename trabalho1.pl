@@ -1,45 +1,17 @@
-%Identificar os serviços existentes numa instituição;
-% servico: Servico, Instituicao -> {V, F}
-
-%Identificar os utentes de uma instituição;
-% recorreuInstituicao: Utente, Instituicao -> {V, F}
-%% falta eliminar resultados repetidos
-
-%Identificar os utentes de um determinado serviço;
-% recorreuServico: Utente, Servico -> {V, F}
-
-%Identificar os utentes de um determinado serviço numa instituição;
-% registo: Utente, Instituicao, Servico -> {V, F}
-%% falta eliminar resultados repetidos
-
-%Identificar as instituições onde seja prestado um dado serviço ou conjunto de serviços;
-% servico: Servico, Instituicao -> {V, F}
-%% falta listar para conjunto de servicos
-
-%Identificar os serviços que não se podem encontrar numa instituição;
-% falta este
-
-%Determinar as instituições onde um profissional presta serviço;
-% listarProfissionaisNoServico: Servico, Profissional -> {V, F}
-
-%Determinar todas as instituições (ou serviços, ou profissionais) a que um utente já recorreu;
-%recorreuInstituicao: Utente, Instituicao -> {V, F}
-%recorreuServico: Utente, Servico -> {V, F}
-%recorreuProfissional: Utente, Profissional -> {V, F}
-
-%Registar utentes, profissionais, serviços ou instituições;
-% falta este
-
-%Remover utentes (ou profissionais, ou serviços, ou instituições) dos registos.
-% falta este
-
-%FALTAM OS PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
+%PROTOTIPOS DAS QUERIES
 % ...
 % ...
+
+
+%PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
+% ...
+% ...
+
 
 :- set_prolog_flag( unknown,fail ).
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
+
 
 % Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
@@ -51,9 +23,6 @@ utente(delfina_araujo).
 utente(jorge_marques).
 utente(rosa_sousa).
 
-%falta
-adicionarUtente.
-removerUtente.
 
 % Base de Conhecimento sobre Registo de entradas --------------------------------------------------------------------------------
 
@@ -72,9 +41,6 @@ recorreuInstituicao(U, I) :- registo(U,I,_).
 recorreuServico(U, S) :- registo(U,_,S).
 recorreuProfissional(U, P) :- registo(U,I,S), profissional(P,S,I).
 
-%falta
-adicionarRegisto.
-removerRegisto.
 
 % Base de Conhecimento sobre Instituições ---------------------------------------------------------------------------------------
 
@@ -84,10 +50,6 @@ instituicao(hospital_lisboa).
 instituicao(hospital_porto).
 instituicao(hospital_leiria).
 
-
-%falta
-adicionarInstituicao.
-removerInstituicao.
 
 % Base de Conhecimento sobre Serviços -------------------------------------------------------------------------------------------
 
@@ -107,13 +69,6 @@ servico(clinica_geral, hospital_braga).
 servico(cirurgia, hospital_lisboa).
 servico(psiquiatria, hospital_braga).
 
-servicosNaoPrestados(I, S) :- not(servico(S, I)).
-
-
-
-%falta
-adiconarServico.
-removerServico.
 
 % Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
@@ -128,9 +83,6 @@ todosProfissionais(P) :- profissional(P,_,_).
 profissionaisNoServico(S,P) :- profissional(P,S,_).
 profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
 
-%falta
-adicionarProfessional.
-removerProfessional.
 
 % Funcoes sobre listas ----------------------------------------------------------------------------------------------------------
 
@@ -187,6 +139,7 @@ intercepcao([H | Tail], L2, L3) :- apagar(H, L2, R), intercepcao(Tail, R, L3).
 
 
 %Queries a base de conhecimento -------------------------------------------------------------------------------------------------
+%%FALTA ELIMINAR RESULTADOS REPETIDOS
 
 % Identificar os serviços existentes numa instituição
 servicosInstituicao(I, S) :- findall(X, servico(X, I), S).
