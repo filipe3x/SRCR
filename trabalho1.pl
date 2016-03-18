@@ -37,9 +37,9 @@
 % ...
 % ...
 
+:- set_prolog_flag( unknown,fail ).
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
-:- set_prolog_flag( unknown,fail ).
 
 % Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
@@ -181,6 +181,10 @@ removerduplicados([],[]).
 removerduplicados([H|T],C) :- pertence(H,T), !, removerduplicados(T,C).
 removerduplicados([H|T],[H|C]) :- removerduplicados(T,C).
 
+% Subtrai elementos de L1 a L2, produzindo L3
+intercepcao([], L, L).
+intercepcao([H | Tail], L2, L3) :- apagar(H, L2, R), intercepcao(Tail, R, L3).
+
 
 %Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 
@@ -204,7 +208,12 @@ instituicoesComServicos([], []).
 instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
 
 % Identificar os serviços que não se podem encontrar numa instituição
-% ...
+servicosNaoEncontrados(I, S) :- 
+	findall(X, servico(X, Y), L1), 
+	removerduplicados(L1, R1),
+	findall(X, servico(X, I), L2), 
+	intercepcao(L2, R1, R2), 
+	removerduplicados(R2, S).
 
 % Determinar as instituições onde um profissional presta serviço
 listarProfissionaisNaInstituicao(I,P) :- findall(X, profissionaisNaInstituicao(I,X), P).
