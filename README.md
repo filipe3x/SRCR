@@ -62,3 +62,12 @@ Output:
 
     I = [hospital_braga,hospital_lisboa] ? 
     yes
+
+###Norma
+
+Norma geralmente seguida para designar as entidades
+    U - utente
+    S - serviço
+    P - profissional
+    I - instituição
+
