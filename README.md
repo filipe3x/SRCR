@@ -3,7 +3,14 @@ Pequeno script em PROLOG com o intuito de simular uma base de dados de uma insti
 
 ###Dependencias
 [sicstus](https://sicstus.sics.se) - interpretador de PROLOG
-    
+
+###Instrucoes
+Carregar script
+    | ?- [trabalho1].
+
+Para sair
+    | ?- halt.
+
 ###Exemplos
 
 Identificar os serviços existentes numa instituição
