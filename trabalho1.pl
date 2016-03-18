@@ -60,12 +60,13 @@ removerUtente.
 registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, nutricionismo).
-registo(maria_meireles, hospital_porto, gereatria).
-registo(maria_meireles, hospital_porto, gereatria).
-registo(maria_meireles, hospital_porto, gereatria).
-registo(maria_meireles, hospital_porto, gereatria).
-registo(maria_meireles, hospital_porto, gereatria).
-registo(maria_meireles, hospital_porto, gereatria).
+registo(antonio_sousa, hospital_porto, nutricionismo).
+registo(maria_meireles, hospital_porto, geriatria).
+registo(maria_meireles, hospital_porto, geriatria).
+registo(maria_meireles, hospital_porto, geriatria).
+registo(maria_meireles, hospital_porto, geriatria).
+registo(maria_meireles, hospital_porto, geriatria).
+registo(maria_meireles, hospital_porto, geriatria).
 
 recorreuInstituicao(U, I) :- registo(U,I,_).
 recorreuServico(U, S) :- registo(U,_,S).
@@ -98,7 +99,7 @@ servico(nutricionismo, hospital_sao_marcos).
 servico(nutricionismo, hospital_braga).
 servico(nutricionismo, hospital_leiria).
 servico(nutricionismo, hospital_porto).
-servico(gereatria, hospital_porto).
+servico(geriatria, hospital_porto).
 servico(neurologia, hospital_porto).
 servico(oncologia, hospital_porto).
 servico(cirurgia, hospital_braga).
