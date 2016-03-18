@@ -33,7 +33,9 @@
 %Remover utentes (ou profissionais, ou serviços, ou instituições) dos registos.
 % falta este
 
-%
+%FALTAM OS PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
+% ...
+% ...
 
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
@@ -42,7 +44,6 @@
 % Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
 utente(antonio_sousa).
-utente(filipe_marques).
 utente(antonio_marques).
 utente(maria_meireles).
 utente(diamantino_marques).
@@ -60,6 +61,11 @@ registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, nutricionismo).
 registo(maria_meireles, hospital_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
 
 recorreuInstituicao(U, I) :- registo(U,I,_).
 recorreuServico(U, S) :- registo(U,_,S).
@@ -75,6 +81,8 @@ instituicao(hospital_sao_marcos).
 instituicao(hospital_braga).
 instituicao(hospital_lisboa).
 instituicao(hospital_porto).
+instituicao(hospital_leiria).
+
 
 %falta
 adicionarInstituicao.
@@ -83,7 +91,13 @@ removerInstituicao.
 % Base de Conhecimento sobre Serviços -------------------------------------------------------------------------------------------
 
 servico(cardiologia, hospital_sao_marcos).
+servico(cardiologia, hospital_braga).
+servico(cardiologia, hospital_leiria).
+servico(cardiologia, hospital_porto).
 servico(nutricionismo, hospital_sao_marcos).
+servico(nutricionismo, hospital_braga).
+servico(nutricionismo, hospital_leiria).
+servico(nutricionismo, hospital_porto).
 servico(gereatria, hospital_porto).
 servico(neurologia, hospital_porto).
 servico(oncologia, hospital_porto).
@@ -187,7 +201,9 @@ instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
 instituicoesComServicos([], []).
 instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
 
-
+% faltam as outras queries...
+% ...
+% ...
 
 %Queries extra ------------------------------------------------------------------------------------------------------------------
 % ...
