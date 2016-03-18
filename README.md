@@ -2,29 +2,9 @@
 Pequeno script em PROLOG com o intuito de simular uma base de dados de uma instituicao de saude
 
 ###Dependencias
-    [sicstus](https://sicstus.sics.se) - interpretador de PROLOG
+[sicstus](https://sicstus.sics.se) - interpretador de PROLOG
     
 ###Exemplos
-
-% Identificar os serviços existentes numa instituição
-servicosInstituicao(I, S) :- findall(X, servico(X, I), S).
-
-% Identificar os utentes de uma instituição
-utentesInstituicao(I, U) :- findall(X, recorreuInstituicao(X, I), U).
-
-% Identificar os utentes de um determinado serviço
-utentesServico(S, U) :- findall(X, recorreuServico(X, S), U).
-
-% Identificar os utentes de um determinado serviço numa instituição
-utentesServicoInstituicao(S,I,U) :- findall(X, registo(X, I, S), U).
-
-% Identificar as instituições onde seja prestado um serviço
-instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
-
-% Identificar as instituições onde seja prestado um conjunto de serviços
-instituicoesComServicos([], []).
-instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
-
 
 Identificar os serviços existentes numa instituição
 
