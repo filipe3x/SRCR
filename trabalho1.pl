@@ -33,11 +33,13 @@
 %Remover utentes (ou profissionais, ou serviços, ou instituições) dos registos.
 % falta este
 
+%
+
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
 :- set_prolog_flag( unknown,fail ).
 
-% Base de Conhecimento sobre Utentes -------------------------------------------------------------------------------------------
+% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
 utente(antonio_sousa).
 utente(filipe_marques).
@@ -52,12 +54,12 @@ utente(rosa_sousa).
 adicionarUtente.
 removerUtente.
 
-% Base de Conhecimento sobre Registo de entradas -------------------------------------------------------------------------------
+% Base de Conhecimento sobre Registo de entradas --------------------------------------------------------------------------------
 
 registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, cardiologia).
 registo(antonio_sousa, hospital_sao_marcos, nutricionismo).
-registo(maria_meireles, ipo_porto, gereatria).
+registo(maria_meireles, hospital_porto, gereatria).
 
 recorreuInstituicao(U, I) :- registo(U,I,_).
 recorreuServico(U, S) :- registo(U,_,S).
@@ -67,24 +69,24 @@ recorreuProfissional(U, P) :- registo(U,I,S), profissional(P,S,I).
 adicionarRegisto.
 removerRegisto.
 
-% Base de Conhecimento sobre Instituições --------------------------------------------------------------------------------------
+% Base de Conhecimento sobre Instituições ---------------------------------------------------------------------------------------
 
 instituicao(hospital_sao_marcos).
 instituicao(hospital_braga).
 instituicao(hospital_lisboa).
-instituicao(ipo_porto).
+instituicao(hospital_porto).
 
 %falta
 adicionarInstituicao.
 removerInstituicao.
 
-% Base de Conhecimento sobre Serviços ------------------------------------------------------------------------------------------
+% Base de Conhecimento sobre Serviços -------------------------------------------------------------------------------------------
 
 servico(cardiologia, hospital_sao_marcos).
 servico(nutricionismo, hospital_sao_marcos).
-servico(gereatria, ipo_porto).
-servico(neurologia, ipo_porto).
-servico(oncologia, ipo_porto).
+servico(gereatria, hospital_porto).
+servico(neurologia, hospital_porto).
+servico(oncologia, hospital_porto).
 servico(cirurgia, hospital_braga).
 servico(clinica_geral, hospital_braga).
 servico(cirurgia, hospital_lisboa).
@@ -92,15 +94,15 @@ servico(psiquiatria, hospital_braga).
 
 servicosNaoPrestados(I, S) :- not(servico(S, I)).
 
-servicos_instituicao(I, S) :- findall(X, servico(X, I), S).
+
 
 %falta
 adiconarServico.
 removerServico.
 
-% Base de Conhecimento sobre Profissionais -------------------------------------------------------------------------------------
+% Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
-profissional(salvador_sousa, oncologia, ipo_porto).
+profissional(salvador_sousa, oncologia, hospital_porto).
 profissional(luis_sousa, clinica_geral, hospital_braga).
 profissional(tiago_sousa, cirurgia, hospital_lisboa).
 profissional(andreia_goncalves, cirurgia, hospital_braga).
@@ -110,12 +112,11 @@ profissional(marta_caetano, nutricionismo, hospital_sao_marcos).
 listarProfissionais(P) :- profissional(P,_,_).
 listarProfissionaisNoServico(S,P) :- profissional(P,S,_).
 listarProfissionaisNaInstituicao(I,P) :- profissional(P,_,I).
-
 %falta
 adicionarProfessional.
 removerProfessional.
 
-% Funcoes sobre listas ---------------------------------------------------------------------------------------------------------
+% Funcoes sobre listas ----------------------------------------------------------------------------------------------------------
 
 %Negacao
 not(P) :- P, !, fail.
@@ -161,10 +162,37 @@ sublista(S, [ _ | YS]) :-
 
 %Remove elementos duplicados de uma lista
 removerduplicados([],[]).
-removerduplicados([H|T],C) :- pertence(H,T),!, removerduplicados(T,C).
+removerduplicados([H|T],C) :- pertence(H,T), !, removerduplicados(T,C).
 removerduplicados([H|T],[H|C]) :- removerduplicados(T,C).
 
-%Faltam invariantes ---------------------------------------------------------------
-% ...
+
+%Queries a base de conhecimento -------------------------------------------------------------------------------------------------
+
+% Identificar os serviços existentes numa instituição
+servicosInstituicao(I, S) :- findall(X, servico(X, I), S).
+
+% Identificar os utentes de uma instituição
+utentesInstituicao(I, U) :- findall(X, recorreuInstituicao(X, I), U).
+
+% Identificar os utentes de um determinado serviço
+utentesServico(S, U) :- findall(X, recorreuServico(X, S), U).
+
+% Identificar os utentes de um determinado serviço numa instituição
+utentesServicoInstituicao(S,I,U) :- findall(X, registo(X, I, S), U).
+
+% Identificar as instituições onde seja prestado um serviço
+instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
+
+% Identificar as instituições onde seja prestado um conjunto de serviços
+instituicoesComServicos([], []).
+instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
+
+
+
+%Queries extra ------------------------------------------------------------------------------------------------------------------
 % ...
 
+
+%Faltam invariantes -------------------------------------------------------------------------------------------------------------
+% ...
+% ...
