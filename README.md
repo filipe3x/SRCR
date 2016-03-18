@@ -66,6 +66,7 @@ Output:
 ###Norma
 
 Norma geralmente seguida para designar as entidades
+
     U - utente
     S - serviço
     P - profissional
