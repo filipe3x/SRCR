@@ -1,13 +1,13 @@
-%PROTOTIPOS DAS QUERIES
+% PROTOTIPOS DAS QUERIES
 % ...
 % ...
 
 
-%PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
+% PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
 % ...
 % ...
 
-
+% SICStus PROLOG: Declaracoes iniciais
 :- set_prolog_flag( unknown,fail ).
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
@@ -86,49 +86,49 @@ profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
 
 % Funcoes sobre listas ----------------------------------------------------------------------------------------------------------
 
-%Negacao
+% Negacao
 not(P) :- P, !, fail.
 not(_).
 
-%Verifica se elemento existe dentro de uma lista de elementos
+% Verifica se elemento existe dentro de uma lista de elementos
 pertence(X,[X | _ ]).
 pertence(X,[ _ | XS]) :- pertence(X,XS).
 
-%Nr de elementos existentes numa lista 
+% Nr de elementos existentes numa lista 
 comprimento([],0).
 comprimento([ _ | XS], L) :- 
 	comprimento(XS,L1),
 	L is L1 + 1.
 
-%Apaga a primeira ocurrencia de um elemento numa lista
+% Apaga a primeira ocurrencia de um elemento numa lista
 apagar(X, [X | XS], XS).
 apagar(E, [X | XS], [X | YS]) :- apagar(E, XS, YS).
 
-%Apaga todas as ocurrencias de um elemento numa lista
+% Apaga todas as ocurrencias de um elemento numa lista
 apagartudo(_, [], []).
 apagartudo(X,[X | XS], YS) :- apagartudo(X,XS,YS).
 apagartudo(E,[X | XS], [X | YS]) :- apagartudo(E, XS, YS).
 
-%Insere elemento a cabeca da lista, caso ainda nao exista
+% Insere elemento a cabeca da lista, caso ainda nao exista
 adicionar(X, L, L) :- pertence(X,L).
 adicionar(X, L, [X | L]).
 
-%Concatenacao da lista L1 com lista L2
+% Concatenacao da lista L1 com lista L2
 concatenar([], L2, L2).
 concatenar(L1, [], L1).
 concatenar([X | L1], L2, [X | R]) :- concatenar(L1, L2, R).
 
-%Inverte ordem dos elementos de uma lista
+% Inverte ordem dos elementos de uma lista
 inverter([X],[X]).
 inverter([X | XS], L2) :- inverter(XS, YS), concatenar(YS,[X],L2).
 
-%Verifica se S e sublista de L
+% Verifica se S e sublista de L
 sublista(S,L) :- concatenar(S,_,L).
 sublista(S,L) :- concatenar(_,S,L).
 sublista(S, [ _ | YS]) :- 
 	sublista(S, YS).
 
-%Remove elementos duplicados de uma lista
+% Remove elementos duplicados de uma lista
 removerduplicados([],[]).
 removerduplicados([H|T],C) :- pertence(H,T), !, removerduplicados(T,C).
 removerduplicados([H|T],[H|C]) :- removerduplicados(T,C).
@@ -138,29 +138,36 @@ intercepcao([], L, L).
 intercepcao([H | Tail], L2, L3) :- apagar(H, L2, R), intercepcao(Tail, R, L3).
 
 
-%Queries a base de conhecimento -------------------------------------------------------------------------------------------------
-%%FALTA ELIMINAR RESULTADOS REPETIDOS
+% Queries a base de conhecimento -------------------------------------------------------------------------------------------------
+%% FALTA ELIMINAR RESULTADOS REPETIDOS
 
-% Identificar os serviços existentes numa instituição
+% Extensao do predicado Identificar os serviços existentes numa instituição
+% servicosInstituicao(I,S) -> {V,F}
 servicosInstituicao(I, S) :- findall(X, servico(X, I), S).
 
-% Identificar os utentes de uma instituição
+% Extensao do predicado Identificar os utentes de uma instituição
+% utentesInstituicao(I,U) -> {V,F}
 utentesInstituicao(I, U) :- findall(X, recorreuInstituicao(X, I), U).
 
-% Identificar os utentes de um determinado serviço
+% Extensao do predicado Identificar os utentes de um determinado serviço
+% utentesServico(S,U) -> {V,F}
 utentesServico(S, U) :- findall(X, recorreuServico(X, S), U).
 
-% Identificar os utentes de um determinado serviço numa instituição
+% Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
+% utentesServicoInstituicao(S,I,U) -> {V,F}
 utentesServicoInstituicao(S,I,U) :- findall(X, registo(X, I, S), U).
 
-% Identificar as instituições onde seja prestado um serviço
+% Extensao do predicado Identificar as instituições onde seja prestado um serviço
+% instituicaoesComServico(S,I) -> {V,F}
 instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
 
-% Identificar as instituições onde seja prestado um conjunto de serviços
+% Extensao do predicado Identificar as instituições onde seja prestado um conjunto de serviços
+% instituicoesComServicos([S],I) -> {V,F}
 instituicoesComServicos([], []).
 instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
 
-% Identificar os serviços que não se podem encontrar numa instituição
+% Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
+% servicosNaoEncontrados(I,S) -> {V,F}
 servicosNaoEncontrados(I, S) :- 
 	findall(X, servico(X, Y), L1), 
 	removerduplicados(L1, R1),
@@ -168,11 +175,16 @@ servicosNaoEncontrados(I, S) :-
 	intercepcao(L2, R1, R2), 
 	removerduplicados(R2, S).
 
-% Determinar as instituições onde um profissional presta serviço
+% Extensao do predicado Determinar as instituições onde um profissional presta serviço
+% listarProfissionaisNaInstituicao(I,P) -> {V,F}
 listarProfissionaisNaInstituicao(I,P) :- findall(X, profissionaisNaInstituicao(I,X), P).
 
-% Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% utenteRecorreuInstituicao(U,I) -> {V,F}
 utenteRecorreuInstituicao(U,I) :- findall(X, recorreuInstituicao(U,X), I).
+
+% Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% utenteRecorreuServico(U,S) -> {V,F}
 utenteRecorreuServico(U,S) :- findall(X, recorreuServico(U,X), S).
 utenteRecorreuProfissional(U,P) :- findall(X, recorreuProfissional(U,X), P).
 
