@@ -13,6 +13,15 @@
 :- set_prolog_flag( single_var_warnings,off ).
 
 
+% SICStus PROLOG: Definicoes iniciais
+% permitida a evolução sobre utentes, profissionais, serviços ou instituições
+
+:- op( 900,xfy,'::' ).
+:- dynamic utente/1.
+:- dynamic profissional/3.
+:- dynamic servico/2.
+:- dynamic instituicao/1.
+
 % Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
 utente(antonio_sousa).
@@ -68,7 +77,6 @@ servico(cirurgia, hospital_braga).
 servico(clinica_geral, hospital_braga).
 servico(cirurgia, hospital_lisboa).
 servico(psiquiatria, hospital_braga).
-
 
 % Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
@@ -201,6 +209,32 @@ remover(Q).
 % ...
 
 
-%Faltam invariantes -------------------------------------------------------------------------------------------------------------
-% ...
-% ...
+% Invariantes -------------------------------------------------------------------------------------------------------------------
+% Invariante Estrutural 
+% Invariante Referencial 
+%
+
+% Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
+
+% Extensão do predicado que permite a evolucao do conhecimento
+% disponibilizada pelo professor na aula prática da semana5
+evolucao( Termo ) :- solucoes(I,+Termo::I,Li),
+ inserir(Termo),
+ testar(Li).
+
+% predicado disponibilizado pelo professor na semana5
+% testar: Li -> {V,F}.
+testar([]).
+testar([I,L]):-I,testar(L).
+
+% predicado disponibilizado pelo professor na semana5
+% inserir: T -> {V,F}
+inserir(T):-assert(T).
+inserir(T):-retract(T),!,fail.
+
+% predicado disponibilizado pelo professor na semana5
+% solucoes X,Y,Z -> {V,F}
+solucoes(X,Y,Z):-findall(X,Y,Z).
+
+comprimento(S,N):-length(S,N).
+
