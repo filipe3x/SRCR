@@ -1,20 +1,8 @@
 
-
-
-% PROTOTIPOS DAS QUERIES
-% ...
-% ...
-
-
-% PROTOTIPOS DAS FUNCOES AUX SOBRE LISTAS
-% ...
-% ...
-
 % SICStus PROLOG: Declaracoes iniciais
 :- set_prolog_flag( unknown,fail ).
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
-
 
 % SICStus PROLOG: Definicoes iniciais
 % permitida a evolução sobre utentes, profissionais, serviços ou instituições
@@ -35,25 +23,6 @@ utente(delfina_araujo).
 utente(jorge_marques).
 utente(rosa_sousa).
 
-
-% Base de Conhecimento sobre Registo de entradas --------------------------------------------------------------------------------
-
-registo(antonio_sousa, hospital_sao_marcos, cardiologia).
-registo(antonio_sousa, hospital_sao_marcos, cardiologia).
-registo(antonio_sousa, hospital_sao_marcos, nutricionismo).
-registo(antonio_sousa, hospital_porto, nutricionismo).
-registo(maria_meireles, hospital_porto, geriatria).
-registo(maria_meireles, hospital_porto, geriatria).
-registo(maria_meireles, hospital_porto, geriatria).
-registo(maria_meireles, hospital_porto, geriatria).
-registo(maria_meireles, hospital_porto, geriatria).
-registo(maria_meireles, hospital_porto, geriatria).
-
-recorreuInstituicao(U, I) :- registo(U,I,_).
-recorreuServico(U, S) :- registo(U,_,S).
-recorreuProfissional(U, P) :- registo(U,I,S), profissional(P,S,I).
-
-
 % Base de Conhecimento sobre Instituições ---------------------------------------------------------------------------------------
 
 instituicao(hospital_sao_marcos).
@@ -62,32 +31,41 @@ instituicao(hospital_lisboa).
 instituicao(hospital_porto).
 instituicao(hospital_leiria).
 
-
 % Base de Conhecimento sobre Serviços -------------------------------------------------------------------------------------------
 
 servico(cardiologia, hospital_sao_marcos).
 servico(cardiologia, hospital_braga).
 servico(cardiologia, hospital_leiria).
 servico(cardiologia, hospital_porto).
+
 servico(nutricionismo, hospital_sao_marcos).
 servico(nutricionismo, hospital_braga).
 servico(nutricionismo, hospital_leiria).
 servico(nutricionismo, hospital_porto).
+
 servico(geriatria, hospital_porto).
+
 servico(neurologia, hospital_porto).
+
 servico(oncologia, hospital_porto).
+
 servico(cirurgia, hospital_braga).
-servico(clinica_geral, hospital_braga).
 servico(cirurgia, hospital_lisboa).
+
+servico(clinica_geral, hospital_braga).
+servico(clinica_geral, hospital_porto).
+
 servico(psiquiatria, hospital_braga).
 
 % Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
 profissional(salvador_sousa, oncologia, hospital_porto).
 profissional(filipe_oliveira, nutricionismo, hospital_porto).
+profissional(filipe_marques, nutricionismo, hospital_porto).
 profissional(filipe_oliveira, clinical_geral, hospital_porto).
 profissional(filipe_marques, clinical_geral, hospital_porto).
 profissional(luis_mendes, clinica_geral, hospital_porto).
+profissional(andre_santos, geriatria, hospital_porto).
 
 profissional(tiago_sousa, cirurgia, hospital_lisboa).
 
@@ -101,10 +79,132 @@ profissional(luis_mendes, clinical_geral, hospital_braga).
 profissional(luis_sousa, clinica_geral, hospital_braga).
 profissional(andreia_goncalves, cirurgia, hospital_braga).
 
+% Base de Conhecimento sobre Registo de entradas --------------------------------------------------------------------------------
+
+registo(antonio_sousa, hospital_sao_marcos, cardiologia, vanessa_goncalves).
+registo(antonio_sousa, hospital_sao_marcos, cardiologia, vanessa_goncalves).
+registo(antonio_sousa, hospital_sao_marcos, nutricionismo, filipe_oliveira).
+registo(antonio_marques, hospital_porto, nutricionismo, filipe_marques).
+registo(maria_meireles, hospital_porto, geriatria, andre_santos).
+registo(maria_meireles, hospital_porto, geriatria, andre_santos).
+registo(diamantino_marques, hospital_porto, geriatria, andre_santos).
+registo(diamantino_marques, hospital_porto, geriatria, andre_santos).
+registo(rosa_sousa, hospital_porto, geriatria, andre_santos).
+registo(jorge_marques, hospital_porto, geriatria, andre_santos).
+
+%Queries extra ------------------------------------------------------------------------------------------------------------------
+% ...
+
+recorreuInstituicao(U, I) :- registo(U,I,_,_).
+recorreuServico(U, S) :- registo(U,_,S,_).
+recorreuProfissional(U, P) :- registo(U,_,_,P).
+
 todosProfissionais(P) :- profissional(P,_,_).
 profissionaisNoServico(S,P) :- profissional(P,S,_).
 profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
 
+% Queries a base de conhecimento -------------------------------------------------------------------------------------------------
+
+% 1) Extensao do predicado Identificar os serviços existentes numa instituição
+% servicosInstituicao(Instituicao,Servicos) -> {V,F}
+servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servico).
+
+% 2) Extensao do predicado Identificar os utentes de uma instituição
+% utentesInstituicao(Instituicao,Utentes) -> {V,F}
+utentesInstituicao(Instituicao,Utentes) :- solucoes(X, recorreuInstituicao(X, Instituicao), Utentes).
+
+% 3) Extensao do predicado Identificar os utentes de um determinado serviço
+% utentesServico(Servico,Utentes) -> {V,F}
+utentesServico(Servico,Utentes) :- solucoes(X, recorreuServico(X, Servico), Utentes).
+
+% 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
+% utentesServicoInstituicao(Servico,Instituicao,Utente) -> {V,F}
+utentesServicoInstituicao(Servico,Institiocao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
+
+% 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
+% instituicaoesComServico(Servico,Instituicao) -> {V,F}
+% instituicoesComServicos([Servicos],Instituicao) -> {V,F}
+instituicoesComServicos([], []).
+instituicoesComServicos(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
+instituicoesComServicos([Servico | Tail], Instituicao) :- 
+  solucoes(X, servico(Servico, X), L1),
+  instituicoesComServicos(Tail, L2),
+  concatenar(L1, L2, Instituicao).
+
+% 6) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
+% servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
+servicosNaoEncontrados(Instituicao, Servicos) :-
+  solucoes(X, servico(X, Y), L1),
+  removerduplicados(L1, R1),
+  solucoes(X, servico(X, Instituicao), L2),
+  intercepcao(L2, R1, R2),
+  removerduplicados(R2, Servicos).
+
+% 7) Extensao do predicado Determinar as instituições onde um profissional presta serviço
+% instituicoesProfissionalPrestaServico(Professional, [Instituicoes] ) -> {V,F}
+instituicoesProfissionalPrestaServico(Profissional, Instituicoes ) :-
+  solucoes(X,profissional(Profissional,_,X),L1),
+  removerduplicados(L1,Instituicoes).
+
+% 8.0.1) Extensao do predicado Determinar todas as instituições a que um utente já recorreu
+% utenteRecorreuInstituicao(Utente,[Instituicoes]) -> {V,F}
+utenteRecorreuInstituicao(Utente,Instituicoes) :- 
+  solucoes(X, recorreuInstituicao(Utente,X), InstituicoesComDupl),
+  removerduplicados(InstituicoesComDupl, Instituicoes).
+
+% 8.0.2) Extensao do predicado Determinar todos os serviços a que um utente já recorreu
+% utenteRecorreuServico(Utente,[Servicos]) -> {V,F}
+utenteRecorreuServico(Utente,Servicos) :- 
+  solucoes(X, recorreuServico(Utente,X), ServicosComDupl),
+  removerduplicados(ServicosComDupl, Servicos).
+
+% 8.0.3) Extensao do predicado Determinar todos os profissionais a que um utente já recorreu
+%utenteRecorreuProfissional(Utente,[Profissionais]) -> {V,F}
+utenteRecorreuProfissional(U,Profissionais) :- 
+  solucoes(X, recorreuProfissional(Utente,X), ProfissionaisComDupl),
+  removerduplicados(ProfissionaisComDupl, Profissionais).
+
+% 8) Extensao do predicado Determinar todas as instituições (ou serviços, ou profissionais) a que um utente já recorreu
+% utenteRecorreu(Utente,Lista) -> {V,F}
+utenteRecorreu(Utente,Lista) :-
+  utenteRecorreuInstituicao(Utente,LInst),
+  utenteRecorreuServico(Utente,LServ),
+  utenteRecorreuProfissional(Utente,LProf),
+  concatenar(LInst, LServ, LInstServ),
+  concatenar(LInstServ,LProf,Lista).
+
+% 9) Registar utentes, profissionais, serviços ou instituições
+
+% 10) Remover utentes (ou profissionais ou serviços ou instituições) dos registos
+
+% Invariantes -------------------------------------------------------------------------------------------------------------------
+%
+% Invariante Estrutural 
+%
+% Invariante Referencial 
+%
+
+% Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
+
+% Extensão do predicado que permite a evolucao do conhecimento
+% disponibilizada pelo professor na aula prática da semana5
+evolucao( Termo ) :- solucoes(Invariante,+Termo::Invariante,Lista),
+inserir(Termo),
+testar(Lista).
+
+% predicado disponibilizado pelo professor na semana5
+% testar: Li -> {V,F}.
+testar([]).
+testar([I,L]):-I,testar(L).
+
+% predicado disponibilizado pelo professor na semana5
+% inserir: T -> {V,F}
+inserir(T):-assert(T).
+inserir(T):-retract(T),!,fail.
+
+% predicado disponibilizado pelo professor na semana5
+% solucoes X,Y,Z -> {V,F}
+solucoes(X,Y,Z):-findall(X,Y,Z).
 
 % Funcoes sobre listas ----------------------------------------------------------------------------------------------------------
 
@@ -158,95 +258,4 @@ removerduplicados([H|T],[H|C]) :- removerduplicados(T,C).
 % Subtrai elementos de L1 a L2, produzindo L3
 intercepcao([], L, L).
 intercepcao([H | Tail], L2, L3) :- apagar(H, L2, R), intercepcao(Tail, R, L3).
-
-% Queries a base de conhecimento -------------------------------------------------------------------------------------------------
-%% FALTA ELIMINAR RESULTADOS REPETIDOS
-
-% 1) Extensao do predicado Identificar os serviços existentes numa instituição
-% servicosInstituicao(Instituicao,Servicos) -> {V,F}
-servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servico).
-
-% 2) Extensao do predicado Identificar os utentes de uma instituição
-% utentesInstituicao(Instituicao,Utentes) -> {V,F}
-utentesInstituicao(Instituicao,Utentes) :- solucoes(X, recorreuInstituicao(X, Instituicao), Utentes).
-
-% 3) Extensao do predicado Identificar os utentes de um determinado serviço
-% utentesServico(Servico,Utentes) -> {V,F}
-utentesServico(Servico,Utentes) :- solucoes(X, recorreuServico(X, Servico), Utentes).
-
-% 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
-% utentesServicoInstituicao(Servico,Instituicao,Utente) -> {V,F}
-utentesServicoInstituicao(Servico,Institiocao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
-
-% 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
-% instituicaoesComServico(Servico,Instituicao) -> {V,F}
-% instituicoesComServicos([Servicos],Instituicao) -> {V,F}
-instituicoesComServicos([], []).
-instituicoesComServicos(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
-instituicoesComServicos([Servico | Tail], Instituicao) :- solucoes(X, servico(Servico, X), L1),
-  instituicoesComServicos(Tail, L2),
-  concatenar(L1, L2, Instituicao).
-
-% 6) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
-% servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
-servicosNaoEncontrados(Instituicao, Servicos) :-
-  solucoes(X, servico(X, Y), L1),
-  removerduplicados(L1, R1),
-  solucoes(X, servico(X, Instituicao), L2),
-  intercepcao(L2, R1, R2),
-  removerduplicados(R2, Servicos).
-
-% 7) Extensao do predicado Determinar as instituições onde um profissional presta serviço
-% instituicoesProfissionalPrestaServico(Professional, [Instituicoes] ) -> {V,F}
-instituicoesProfissionalPrestaServico(Profissional, Instituicoes ) :-
-  solucoes(X,profissional(Profissional,_,X),L1),
-  removerduplicados(L1,Instituicoes).
-
-% 8) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
-% utenteRecorreuInstituicao(U,I) -> {V,F}
-utenteRecorreuInstituicao(U,I) :- solucoes(X, recorreuInstituicao(U,X), I).
-
-% 9) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
-% utenteRecorreuServico(U,S) -> {V,F}
-utenteRecorreuServico(U,S) :- solucoes(X, recorreuServico(U,X), S).
-utenteRecorreuProfissional(U,P) :- solucoes(X, recorreuProfissional(U,X), P).
-
-% Registar utentes, profissionais, serviços ou instituições
-% ...
-registar(Q).
-
-% Remover utentes (ou profissionais ou serviços ou instituições) dos registos
-% ...
-remover(Q).
-
-
-%Queries extra ------------------------------------------------------------------------------------------------------------------
-% ...
-
-% Invariantes -------------------------------------------------------------------------------------------------------------------
-% Invariante Estrutural 
-% Invariante Referencial 
-%
-
-% Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
-
-% Extensão do predicado que permite a evolucao do conhecimento
-% disponibilizada pelo professor na aula prática da semana5
-evolucao( Termo ) :- solucoes(Invariante,+Termo::Invariante,Lista),
-inserir(Termo),
-testar(Lista).
-
-% predicado disponibilizado pelo professor na semana5
-% testar: Li -> {V,F}.
-testar([]).
-testar([I,L]):-I,testar(L).
-
-% predicado disponibilizado pelo professor na semana5
-% inserir: T -> {V,F}
-inserir(T):-assert(T).
-inserir(T):-retract(T),!,fail.
-
-% predicado disponibilizado pelo professor na semana5
-% solucoes X,Y,Z -> {V,F}
-solucoes(X,Y,Z):-findall(X,Y,Z).
 
