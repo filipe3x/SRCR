@@ -84,11 +84,22 @@ servico(psiquiatria, hospital_braga).
 % Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
 profissional(salvador_sousa, oncologia, hospital_porto).
-profissional(luis_sousa, clinica_geral, hospital_braga).
+profissional(filipe_oliveira, nutricionismo, hospital_porto).
+profissional(filipe_oliveira, clinical_geral, hospital_porto).
+profissional(filipe_marques, clinical_geral, hospital_porto).
+profissional(luis_mendes, clinica_geral, hospital_porto).
+
 profissional(tiago_sousa, cirurgia, hospital_lisboa).
-profissional(andreia_goncalves, cirurgia, hospital_braga).
+
 profissional(vanessa_goncalves, cardiologia, hospital_sao_marcos).
 profissional(marta_caetano, nutricionismo, hospital_sao_marcos).
+
+profissional(filipe_oliveira, nutricionismo, hospital_braga).
+profissional(filipe_marques, nutricionismo, hospital_braga).
+profissional(luis_mendes, nutricionismo, hospital_braga).
+profissional(luis_mendes, clinical_geral, hospital_braga).
+profissional(luis_sousa, clinica_geral, hospital_braga).
+profissional(andreia_goncalves, cirurgia, hospital_braga).
 
 todosProfissionais(P) :- profissional(P,_,_).
 profissionaisNoServico(S,P) :- profissional(P,S,_).
@@ -169,33 +180,33 @@ utentesServicoInstituicao(Servico,Institiocao,Utente) :- solucoes(X, registo(X, 
 
 % 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
 % instituicaoesComServico(Servico,Instituicao) -> {V,F}
-instituicoesComServico(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
-
-% 6) Extensao do predicado Identificar as instituições onde seja prestado um conjunto de serviços
 % instituicoesComServicos([Servicos],Instituicao) -> {V,F}
 instituicoesComServicos([], []).
-instituicoesComServicos([Servico | Tail], Instituicao) :- solucoes(X, servico(Servico, X), L1), 
-  instituicoesComServico(Tail, L2), 
+instituicoesComServicos(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
+instituicoesComServicos([Servico | Tail], Instituicao) :- solucoes(X, servico(Servico, X), L1),
+  instituicoesComServicos(Tail, L2),
   concatenar(L1, L2, Instituicao).
 
-% 7) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
+% 6) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
 % servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
-servicosNaoEncontrados(Instituicao, Servicos) :- 
-  solucoes(X, servico(X, Y), L1), 
+servicosNaoEncontrados(Instituicao, Servicos) :-
+  solucoes(X, servico(X, Y), L1),
   removerduplicados(L1, R1),
-  solucoes(X, servico(X, Instituicao), L2), 
-  intercepcao(L2, R1, R2), 
+  solucoes(X, servico(X, Instituicao), L2),
+  intercepcao(L2, R1, R2),
   removerduplicados(R2, Servicos).
 
-% 8) Extensao do predicado Determinar as instituições onde um profissional presta serviço
-% listarProfissionaisNaInstituicao(Instituicao,Profissional) -> {V,F}
-listarProfissionaisNaInstituicao(Instituicao,Profissional) :- solucoes(X, profissionaisNaInstituicao(I,X), P).
+% 7) Extensao do predicado Determinar as instituições onde um profissional presta serviço
+% instituicoesProfissionalPrestaServico(Professional, [Instituicoes] ) -> {V,F}
+instituicoesProfissionalPrestaServico(Profissional, Instituicoes ) :-
+  solucoes(X,profissional(Profissional,_,X),L1),
+  removerduplicados(L1,Instituicoes).
 
-% 9) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% 8) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
 % utenteRecorreuInstituicao(U,I) -> {V,F}
 utenteRecorreuInstituicao(U,I) :- solucoes(X, recorreuInstituicao(U,X), I).
 
-% 10) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% 9) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
 % utenteRecorreuServico(U,S) -> {V,F}
 utenteRecorreuServico(U,S) :- solucoes(X, recorreuServico(U,X), S).
 utenteRecorreuProfissional(U,P) :- solucoes(X, recorreuProfissional(U,X), P).
