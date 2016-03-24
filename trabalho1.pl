@@ -1,3 +1,6 @@
+
+
+
 % PROTOTIPOS DAS QUERIES
 % ...
 % ...
@@ -94,9 +97,9 @@ profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
 
 % Funcoes sobre listas ----------------------------------------------------------------------------------------------------------
 
-% Negacao
-not(P) :- P, !, fail.
-not(_).
+% Extensao do meta-predicado nao : Questao -> {V,F}
+nao(Questao) :- Questao, !, fail.
+nao(Questao).
 
 % Verifica se elemento existe dentro de uma lista de elementos
 pertence(X,[X | _ ]).
@@ -105,8 +108,8 @@ pertence(X,[ _ | XS]) :- pertence(X,XS).
 % Nr de elementos existentes numa lista 
 comprimento([],0).
 comprimento([ _ | XS], L) :- 
-	comprimento(XS,L1),
-	L is L1 + 1.
+  comprimento(XS,L1),
+  L is L1 + 1.
 
 % Apaga a primeira ocurrencia de um elemento numa lista
 apagar(X, [X | XS], XS).
@@ -134,7 +137,7 @@ inverter([X | XS], L2) :- inverter(XS, YS), concatenar(YS,[X],L2).
 sublista(S,L) :- concatenar(S,_,L).
 sublista(S,L) :- concatenar(_,S,L).
 sublista(S, [ _ | YS]) :- 
-	sublista(S, YS).
+  sublista(S, YS).
 
 % Remove elementos duplicados de uma lista
 removerduplicados([],[]).
@@ -145,56 +148,57 @@ removerduplicados([H|T],[H|C]) :- removerduplicados(T,C).
 intercepcao([], L, L).
 intercepcao([H | Tail], L2, L3) :- apagar(H, L2, R), intercepcao(Tail, R, L3).
 
-
 % Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 %% FALTA ELIMINAR RESULTADOS REPETIDOS
 
-% Extensao do predicado Identificar os serviços existentes numa instituição
-% servicosInstituicao(I,S) -> {V,F}
-servicosInstituicao(I, S) :- findall(X, servico(X, I), S).
+% 1) Extensao do predicado Identificar os serviços existentes numa instituição
+% servicosInstituicao(Instituicao,Servicos) -> {V,F}
+servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servico).
 
-% Extensao do predicado Identificar os utentes de uma instituição
-% utentesInstituicao(I,U) -> {V,F}
-utentesInstituicao(I, U) :- findall(X, recorreuInstituicao(X, I), U).
+% 2) Extensao do predicado Identificar os utentes de uma instituição
+% utentesInstituicao(Instituicao,Utentes) -> {V,F}
+utentesInstituicao(Instituicao,Utentes) :- solucoes(X, recorreuInstituicao(X, Instituicao), Utentes).
 
-% Extensao do predicado Identificar os utentes de um determinado serviço
-% utentesServico(S,U) -> {V,F}
-utentesServico(S, U) :- findall(X, recorreuServico(X, S), U).
+% 3) Extensao do predicado Identificar os utentes de um determinado serviço
+% utentesServico(Servico,Utentes) -> {V,F}
+utentesServico(Servico,Utentes) :- solucoes(X, recorreuServico(X, Servico), Utentes).
 
-% Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
-% utentesServicoInstituicao(S,I,U) -> {V,F}
-utentesServicoInstituicao(S,I,U) :- findall(X, registo(X, I, S), U).
+% 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
+% utentesServicoInstituicao(Servico,Instituicao,Utente) -> {V,F}
+utentesServicoInstituicao(Servico,Institiocao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
 
-% Extensao do predicado Identificar as instituições onde seja prestado um serviço
-% instituicaoesComServico(S,I) -> {V,F}
-instituicoesComServico(S,I) :- findall(X, servico(S,X), I).
+% 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
+% instituicaoesComServico(Servico,Instituicao) -> {V,F}
+instituicoesComServico(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
 
-% Extensao do predicado Identificar as instituições onde seja prestado um conjunto de serviços
-% instituicoesComServicos([S],I) -> {V,F}
+% 6) Extensao do predicado Identificar as instituições onde seja prestado um conjunto de serviços
+% instituicoesComServicos([Servicos],Instituicao) -> {V,F}
 instituicoesComServicos([], []).
-instituicoesComServicos([S | Tail], I) :- findall(X, servico(S, X), L1), instituicoesComServico(Tail, L2), concatenar(L1, L2, I).
+instituicoesComServicos([Servico | Tail], Instituicao) :- solucoes(X, servico(Servico, X), L1), 
+  instituicoesComServico(Tail, L2), 
+  concatenar(L1, L2, Instituicao).
 
-% Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
-% servicosNaoEncontrados(I,S) -> {V,F}
-servicosNaoEncontrados(I, S) :- 
-	findall(X, servico(X, Y), L1), 
-	removerduplicados(L1, R1),
-	findall(X, servico(X, I), L2), 
-	intercepcao(L2, R1, R2), 
-	removerduplicados(R2, S).
+% 7) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
+% servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
+servicosNaoEncontrados(Instituicao, Servicos) :- 
+  solucoes(X, servico(X, Y), L1), 
+  removerduplicados(L1, R1),
+  solucoes(X, servico(X, Instituicao), L2), 
+  intercepcao(L2, R1, R2), 
+  removerduplicados(R2, Servicos).
 
-% Extensao do predicado Determinar as instituições onde um profissional presta serviço
-% listarProfissionaisNaInstituicao(I,P) -> {V,F}
-listarProfissionaisNaInstituicao(I,P) :- findall(X, profissionaisNaInstituicao(I,X), P).
+% 8) Extensao do predicado Determinar as instituições onde um profissional presta serviço
+% listarProfissionaisNaInstituicao(Instituicao,Profissional) -> {V,F}
+listarProfissionaisNaInstituicao(Instituicao,Profissional) :- solucoes(X, profissionaisNaInstituicao(I,X), P).
 
-% Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% 9) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
 % utenteRecorreuInstituicao(U,I) -> {V,F}
-utenteRecorreuInstituicao(U,I) :- findall(X, recorreuInstituicao(U,X), I).
+utenteRecorreuInstituicao(U,I) :- solucoes(X, recorreuInstituicao(U,X), I).
 
-% Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
+% 10) Extensao do predicado Determinar todas as instituições (ou serviços ou profissionais) a que um utente já recorreu
 % utenteRecorreuServico(U,S) -> {V,F}
-utenteRecorreuServico(U,S) :- findall(X, recorreuServico(U,X), S).
-utenteRecorreuProfissional(U,P) :- findall(X, recorreuProfissional(U,X), P).
+utenteRecorreuServico(U,S) :- solucoes(X, recorreuServico(U,X), S).
+utenteRecorreuProfissional(U,P) :- solucoes(X, recorreuProfissional(U,X), P).
 
 % Registar utentes, profissionais, serviços ou instituições
 % ...
@@ -208,7 +212,6 @@ remover(Q).
 %Queries extra ------------------------------------------------------------------------------------------------------------------
 % ...
 
-
 % Invariantes -------------------------------------------------------------------------------------------------------------------
 % Invariante Estrutural 
 % Invariante Referencial 
@@ -218,9 +221,9 @@ remover(Q).
 
 % Extensão do predicado que permite a evolucao do conhecimento
 % disponibilizada pelo professor na aula prática da semana5
-evolucao( Termo ) :- solucoes(I,+Termo::I,Li),
- inserir(Termo),
- testar(Li).
+evolucao( Termo ) :- solucoes(Invariante,+Termo::Invariante,Lista),
+inserir(Termo),
+testar(Lista).
 
 % predicado disponibilizado pelo professor na semana5
 % testar: Li -> {V,F}.
@@ -235,6 +238,4 @@ inserir(T):-retract(T),!,fail.
 % predicado disponibilizado pelo professor na semana5
 % solucoes X,Y,Z -> {V,F}
 solucoes(X,Y,Z):-findall(X,Y,Z).
-
-comprimento(S,N):-length(S,N).
 
