@@ -12,6 +12,7 @@
 :- dynamic profissional/3.
 :- dynamic servico/2.
 :- dynamic instituicao/1.
+:- dynamic registo/4.
 
 % Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
@@ -92,8 +93,8 @@ registo(diamantino_marques, hospital_porto, geriatria, andre_santos).
 registo(rosa_sousa, hospital_porto, geriatria, andre_santos).
 registo(jorge_marques, hospital_porto, geriatria, andre_santos).
 
-%Queries extra ------------------------------------------------------------------------------------------------------------------
-% ...
+% Predicados Extra ---------------------------------------------------------------------------------------------------------------
+% predicados criados com o intuito de facilitar as queries 'a base de conhecimento
 
 recorreuInstituicao(U, I) :- registo(U,I,_,_).
 recorreuServico(U, S) :- registo(U,_,S,_).
@@ -179,9 +180,20 @@ utenteRecorreu(Utente,Lista) :-
 
 % Invariantes -------------------------------------------------------------------------------------------------------------------
 %
-% Invariante Estrutural 
-%
-% Invariante Referencial 
+% Invariante Estrutural: 
+%   nao permitir a insercao de conhecimento repetido sobre:
+%   - utente (utentes distintos nao teem o mesmo nome)
++utente(Nome)::(solucoes(Nome,(utente(Nome)),S),
+          comprimento(S,N),
+                  N==1).
+%   - instituicao (instituicoes distintas nao teem o mesmo nome)
+
+%   - servico ( servicos distintos do mesmo hospital nao teem o mesmo nome)
+
+%   - profissional ( profissionais distintos nao teem o mesmo nome )
+
+
+% Invariante Referencial:
 %
 
 % Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
