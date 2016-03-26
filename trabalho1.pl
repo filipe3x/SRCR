@@ -160,7 +160,6 @@
   NReg==0
   ).
 
-
 %% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
 utente(antonio_sousa).
@@ -321,9 +320,50 @@ utenteRecorreu(Utente,Lista) :-
   concatenar(LInst, LServ, LInstServ),
   concatenar(LInstServ,LProf,Lista).
 
-% 9) Registar utentes, profissionais, serviços ou instituições
+% 9) Extensao do predicado Registar utentes, profissionais, serviços ou instituições
+
+% Extensao do predicado que pemite registar utentes
+% registarUtente(Nome) -> {V,F}
+registarUtente(Nome) :- evolucao(utente(Nome)).
+
+% Extensao do predicado que pemite registar instituicoes
+% registarInstituicao(Instituicao) -> {V,F}
+registarInstituicao(Instituicao) :- evolucao(instituicao(Instituicao)).
+
+% Extensao do predicado que pemite registar servicos numa instituicao
+% registarServico(Servico,Instituicao) -> {V,F}
+registarServico(Servico,Instituicao) :- evolucao(servico(Servico,Instituicao)).
+
+% Extensao do predicado que pemite registar profissionais num determinado servico de numa instituicao
+% registarProfissional(Profissional,Servico,Instituicao) -> {V,F}
+registarProfissional(Profissional,Servico,Instituicao) :- evolucao(profissional(Profissional,Servico,Instituicao)).
+
+% Extensao do predicado que pemite registar eventos medicos numa instituicao indicando o utente, o profissional, o servico e a instituicao
+% registarEvento(Utente,Profissional,Servico,Instituicao) -> {V,F}
+registarEvento(Utente,Profissional,Servico,Instituicao) :- evolucao(registo(Utente,Profissional,Servico,Instituicao)).
 
 % 10) Remover utentes (ou profissionais ou serviços ou instituições) dos registos
+
+% Extensao do predicado que pemite remover utentes
+% removerUtente(Nome) -> {V,F}
+removerUtente(Nome) :- remocao(utente(Nome)).
+
+% Extensao do predicado que pemite remover instituicoes
+% removerInstituicao(Instituicao) -> {V,F}
+removerInstituicao(Instituicao) :- remocao(instituicao(Instituicao)).
+
+% Extensao do predicado que pemite remover servicos numa instituicao
+% registarServico(Servico,Instituicao) -> {V,F}
+removerServico(Servico,Instituicao) :- remocao(servico(Servico,Instituicao)).
+
+% Extensao do predicado que pemite remover profissionais num determinado servico de numa instituicao
+% removerProfissional(Profissional,Servico,Instituicao) -> {V,F}
+removerProfissional(Profissional,Servico,Instituicao) :- remocao(profissional(Profissional,Servico,Instituicao)).
+
+% Extensao do predicado que pemite remover eventos medicos numa instituicao indicando o utente, o profissional, o servico e a instituicao
+% removerEvento(Utente,Profissional,Servico,Instituicao) -> {V,F}
+removerEvento(Utente,Profissional,Servico,Instituicao) :- remocao(registo(Utente,Profissional,Servico,Instituicao)).
+
 % Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
 
 % Extensão do predicado que permite a evolucao do conhecimento

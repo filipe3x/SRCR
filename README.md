@@ -74,3 +74,111 @@ Output:
     I = [hospital_braga,hospital_lisboa] ? 
     yes
 
+####6) Identificar os serviços que não se podem encontrar numa instituição
+Input:
+    
+    | ?- servicosNaoEncontrados(hospital_sao_marcos,S).
+
+Output:
+    
+    S = [geriatria,neurologia,oncologia,cirurgia,clinica_geral,psiquiatria] ? 
+    yes
+
+####7) Determinar as instituições onde um profissional presta serviço 
+Input:
+
+    | ?- instituicoesProfissionalPrestaServico(filipe_oliveira,I).
+
+Output:
+    
+    I = [hospital_porto,hospital_braga] ? 
+    yes
+
+#####8.0.1) Determinar todas as instituições a que um utente já recorreu
+Input:
+    
+    | ?- utenteRecorreuInstituicao(maria_meireles,I).
+
+Output:
+    I = [hospital_porto] ?
+    yes
+
+#####8.0.2) Determinar todos os serviços a que um utente já recorreu 
+Input:
+    
+    | ?- utenteRecorreuServico(maria_meireles,S).
+
+Output:
+
+    S = [geriatria] ?
+    yes
+
+#####8.0.3) Determinar todos os profissionais a que um utente já recorreu 
+Input:
+    
+    | ?- utenteRecorreuProfissional(maria_meireles,P).
+
+Output:
+
+    P = [andre_santos] ? 
+    yes
+
+####8) Determinar todas as instituições (ou serviços, ou profissionais) a que um utente já recorreu 
+Input:
+    
+    | ?- utenteRecorreu(maria_meireles,L).
+
+Output:
+
+    L = [hospital_porto,geriatria,andre_santos] ? 
+    yes
+
+####9) Registar utentes, profissionais, serviços, instituições e eventos médicos
+#####9.0.1) Regitar utentes
+Input:
+    
+    | ?- registarUtente(fernando_alvim).
+
+Output:
+
+    yes
+
+#####9.0.2) Regitar instituicao
+Input:
+    
+    | ?- registarInstituicao(hospital_luz).
+
+Output:
+
+    yes
+
+#####9.0.3) Regitar serviço 
+Input:
+    
+    | ?- registarServico(geriatria,hospital_luz).
+
+Output:
+
+    yes
+
+#####9.0.4) Regitar profissional
+Input:
+    
+    | ?- registarProfissional(filipe_marques,geriatria,hospital_luz).
+
+Output:
+
+    yes
+
+#####9.0.5) Regitar evento médico
+Input:
+    
+    | ?- registarEvento(fernando_alvim,filipe_marques,geriatria,hospital_luz).
+
+Output:
+
+    yes
+
+####10) Remover utentes, profissionais, serviços, instituições
+A remoção é análogamente inversa ao registo, ou seja, para cada registarXXX existe um removerXXX, p.e., para registarInstituicao(I) existe removerInstituicao(I).
+
