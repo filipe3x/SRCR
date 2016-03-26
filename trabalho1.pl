@@ -16,21 +16,27 @@
 
 %% Invariantes -------------------------------------------------------------------------------------------------------------------
 %
-% Invariante Estrutural:
-%   nao permitir a insercao de conhecimento repetido sobre:
-%   - utente (utentes distintos nao teem o mesmo nome)
-+utente(Utente)::(solucoes( (Utente), ( utente(Utente) ), Lista),
+%   - utente:
+%        Invariante Estrutural:
+%           - utentes distintos nao teem o mesmo nome
++utente(Utente)::(
+  solucoes( (Utente), ( utente(Utente) ), Lista),
   comprimento(Lista,N),
-  N==1).
+  N==1
+  ).
 
-%   - instituicao (instituicoes distintas nao teem o mesmo nome)
+%   - instituicao:
+%        Invariante Estrutural:
+%           - instituicoes distintas nao teem o mesmo nome
 +instituicao(Instituicao)::(solucoes( (Instituicao), ( instituicao(Instituicao) ), Lista),
   comprimento(Lista,N),
   N==1).
 
 %   - servico:
-%       - servicos distintos do mesmo hospital nao teem o mesmo nome
-%       - o hospital associado ao servico existe
+%        Invariante Estrutural:
+%           - servicos distintos da mesma instituicao nao teem o mesmo nome
+%        Invariante Referencial:
+%           - a instituicao associada ao servico existe
 +servico(Servico,Instituicao)::(
   solucoes( (Servico,Instituicao) , ( servico(Servico,Instituicao) ), Lista),
   comprimento(Lista,N),
@@ -41,9 +47,11 @@
   ).
 
 %   - profissional:
-%       - profissionais distintos nao teem o mesmo nome 
-%       - o hospital a ele associado existe
-%       - o servico a ele associado existe na instituicao a ele associado
+%        Invariante Estrutural:
+%           - profissionais distintos nao teem o mesmo nome 
+%        Invariante Referencial:
+%           - a instituicao a ele associada existe
+%           - o servico a ele associado existe na instituicao a ele associado
 +profissional(Profissional,Servico,Instituicao)::(
   solucoes( (Profissional), ( profissional(Profissional,Servico,Instituicao) ), Lista),
   comprimento(Lista,N),
@@ -56,8 +64,31 @@
   NServ==1
   ).
 
-% Invariante Referencial:
-%
+%   - registo:
+%        Invariante Estrutural:
+%           - tem que existir pelo menos um registo com essas caracteristicas depois da insercao
+%        Invariante Referencial:
+%           - o utente a ele associado existe
+%           - a instituicao a ele associado existe
+%           - o servico a ele associado existe na instituicao a ele associado
+%           - o profissional associado ao registo esta associado ao servico e instituicao
++registo(Utente,Instituicao,Servico,Profissional)::(
+  solucoes( (Utente,Instituicao,Servico,Profissional), ( registo(Utente,Instituicao,Servico,Profissional) ), Lista),
+  comprimento(Lista,N),
+  N>=1,
+  solucoes( (Utente), ( utente(Utente) ), ListaUten),
+  comprimento(ListaUten,NUten),
+  NUten==1,
+  solucoes( (Instituicao) , ( instituicao(Instituicao) ), ListaInst),
+  comprimento(ListaInst,NInst),
+  NInst==1,
+  solucoes( (Servico,Instituicao) , ( servico(Servico,Instituicao) ), ListaServ),
+  comprimento(ListaServ,NServ),
+  NServ==1,
+  solucoes( (Profissional,Servico,Instituicao), ( profissional(Profissional,Servico,Instituicao) ), ListaProf),
+  comprimento(ListaProf,NProf),
+  NProf==1
+  ).
 
 %% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
