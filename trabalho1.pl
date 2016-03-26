@@ -250,6 +250,50 @@ todosProfissionais(Profissional) :- profissional(Profissional,_,_).
 profissionaisNoServico(Servico,Profissional) :- profissional(Profissional,Servico,_).
 profissionaisNaInstituicao(Instituicao,Profissional) :- profissional(Profissional,_,Instituicao).
 
+% E1) Extensao do predicado que permite determinar o numero de utentes de uma instituicao 
+% quantosUtentesInstituicao(Instituicao,NumeroUtentes) -> {V,F}
+quantosUtentesInstituicao(Instituicao,NumeroUtentes) :- 
+  utentesInstituicao(Instituicao,ListaUtentes),
+  comprimento(ListaUtentes,NumeroUtentes).
+
+% E2.0.1) Extensao do predicado dada uma lista de instituicoes determina a lista de utilizacao em numero de utentes para cada instituicao 
+%listaUtilizacaoInstituicoes( [I],  [[I,N]]) -> {V,F}
+listaUtilizacaoInstituicoes( [I],  [[I,N]]) :- 
+  quantosUtentesInstituicao(I,N).
+listaUtilizacaoInstituicoes( [I|TAIL_INST],  [[I,N] | XS]) :- 
+  quantosUtentesInstituicao(I,N),
+  listaUtilizacaoInstituicoes(TAIL_INST,XS).
+
+% E2) Extensao do predicado que permite determinar a lista de utilizacao em numero de utentes de todas as instituicoes na base de conhecimento 
+%utilizacaoInstituicoes(ListaUtilizacao) -> {V,F} 
+utilizacaoInstituicoes(ListaUtilizacao) :- 
+  solucoes( (Instituicao),( instituicao(Instituicao) ), ListaInstituicoes),
+  listaUtilizacaoInstituicoes(ListaInstituicoes,ListaUtilizacao).
+
+% E3) Extensao do predicado que permite determinar o numero de eventos medicos de um utente 
+% quantosEventosUtente(Utente,NumeroEventos) -> {V,F}
+quantosEventosMedicosUtente(Utente,NumeroEventos) :-
+  eventosMedicosUtente(Utente,ListaEventosMedicos),
+  comprimento(ListaEventosMedicos,NumeroEventos).
+
+% E3.0.1) Extensao do predicado que permite identificar todos os eventos medicos de um utente 
+eventosMedicosUtente(Utente,ListaEventosMedicos) :-
+  solucoes( (Utente), ( registo(Utente,_,_,_) ), ListaEventosMedicos).
+
+% E4.0.1) Extensao do predicado dada uma lista de utentes determina a lista do numero de eventos medicos para cada utentes 
+%listaEventosMedicosUtente( [Utentes],  [[Utente,N]]) -> {V,F}
+listaEventosMedicosUtente( [Utente],  [[Utente,N]]) :- 
+  quantosEventosMedicosUtente(Utente,N).
+listaEventosMedicosUtente( [Utente|TAIL_UT],  [[Utente,N] | XS]) :- 
+  quantosEventosMedicosUtente(Utente,N),
+  listaEventosMedicosUtente(TAIL_UT,XS).
+
+% E4) Extensao do predicado que permite determinar a lista de numero de eventos medicos por utente de todos os utentes na base de conhecimento 
+%eventosUtentes(ListaEventos) -> {V,F} 
+mapaEventosMedicosPorUtente(ListaEventosUtente) :- 
+  solucoes( (Utente),( utente(Utente) ), ListaUtentes),
+  listaEventosMedicosUtente(ListaUtentes,ListaEventosUtente).
+
 % Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 
 % 1) Extensao do predicado Identificar os serviços existentes numa instituição
@@ -257,16 +301,22 @@ profissionaisNaInstituicao(Instituicao,Profissional) :- profissional(Profissiona
 servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servicos).
 
 % 2) Extensao do predicado Identificar os utentes de uma instituição
-% utentesInstituicao(Instituicao,Utentes) -> {V,F}
-utentesInstituicao(Instituicao,Utentes) :- solucoes(X, recorreuInstituicao(X, Instituicao), Utentes).
+% utentesInstituicao(Instituicao,ListaUtentes) -> {V,F}
+utentesInstituicao(Instituicao,ListaUtentes) :- 
+  solucoes(X, recorreuInstituicao(X, Instituicao), ListaUtentesRep),
+  removerduplicados(ListaUtentesRep, ListaUtentes).
 
 % 3) Extensao do predicado Identificar os utentes de um determinado serviço
-% utentesServico(Servico,Utentes) -> {V,F}
-utentesServico(Servico,Utentes) :- solucoes(X, recorreuServico(X, Servico), Utentes).
+% utentesServico(Servico,ListaUtentes) -> {V,F}
+utentesServico(Servico,ListaUtentes) :- 
+  solucoes(X, recorreuServico(X, Servico), ListaUtentesRep),
+  removerDuplicados(ListaUtentesRep,ListaUtentes).
 
 % 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
-% utentesServicoInstituicao(Servico,Instituicao,Utente) -> {V,F}
-utentesServicoInstituicao(Servico,Instituicao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
+% utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) -> {V,F}
+utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) :- 
+  solucoes(X, registo(X, Instituicao, Servico), ListaUtentesRep),
+  removerDuplicados(ListaUtentesRep,ListaUtentes).
 
 % 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
 % instituicaoesComServico(Servico,Instituicao) -> {V,F}
