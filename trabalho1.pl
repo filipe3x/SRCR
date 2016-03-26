@@ -128,6 +128,38 @@
   NProf==0
   ).
 
+%   - servico:
+%        Invariante Estrutural:
+%           - nao pode existir o servico depois da operacao de remocao 
+%        Invariante Referencial:
+%           - servicos apenas podem ser eliminados se nao exitirem registos a ele associados
+%           - servicos apenas podem ser eliminados se nao exitirem profissionais a ele associados
+-servico(Servico,Instituicao)::(
+  solucoes( (Servico,Instituicao) , ( servico(Servico,Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==0,
+  solucoes( (_,Instituicao,Servico,_), ( registo(_,Instituicao,Servico,_) ), ListaReg),
+  comprimento(ListaReg,NReg),
+  NReg==0,
+  solucoes( (_,Servico,Instituicao), ( profissional(_,Servico,Instituicao) ), ListaProf),
+  comprimento(ListaProf,NProf),
+  NProf==0
+  ).
+
+%   - profissional:
+%        Invariante Estrutural:
+%           - nao pode existir o profissional depois da operacao de remocao 
+%        Invariante Referencial:
+%           - profissionais apenas podem ser eliminados se nao exitirem registos a ele associados
+-profissional(Profissional,Servico,Instituicao)::(
+  solucoes( (Profissional), ( profissional(Profissional,Servico,Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==0,
+  solucoes( (_,Instituicao,Servico,Profissional), ( registo(_,Instituicao,Servico,Profissional) ), ListaReg),
+  comprimento(ListaReg,NReg),
+  NReg==0
+  ).
+
 
 %% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 

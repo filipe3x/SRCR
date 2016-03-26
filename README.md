@@ -15,58 +15,50 @@ Para sair
 
 ###Exemplos
 
-Identificar os serviços existentes numa instituição
-
+####1) Identificar os serviços existentes numa instituição
+Input:
     | ?- servicosInstituicao(hospital_sao_marcos,S).
-Output:
 
+Output:
     S = [cardiologia,nutricionismo] ? 
     yes
 
-Identificar os utentes de uma instituição
-
+####2) Identificar os utentes de uma instituição
+Input:
     | ?- utentesInstituicao(hospital_porto,U).
-Output:
 
+Output:
     U = [antonio_sousa,maria_meireles] ? 
     yes
 
-Identificar os utentes de um determinado serviço
-
+####3) Identificar os utentes de um determinado serviço
+Input:
     | ?- utentesServico(geriatria,U).
-Output:
 
+Output:
     U = [maria_meireles] ? 
     yes
 
-Identificar os utentes de um determinado serviço numa instituição
-
+####4) Identificar os utentes de um determinado serviço numa instituição
+Input:
     | ?- utentesServicoInstituicao(cardiologia,hospital_sao_marcos,U).
-Output:
 
+Output:
     U = [antonio_sousa] ?  
     yes
 
-Identificar as instituições onde seja prestado um dado serviço ou conjunto de serviços
-
+####5) Identificar as instituições onde seja prestado um dado serviço ou conjunto de serviços
+Input:
     | ?- instituicoesComServico(cardiologia,I).
-Output:
 
+Output:
     I = [hospital_sao_marcos,hospital_braga,hospital_leiria,hospital_porto] ?
     yes
 
+Input:
     | ?- instituicoesComServicos([cirurgia,nutricionismo],I).
-Output:
 
+Output:
     I = [hospital_braga,hospital_lisboa] ? 
     yes
-
-###Norma
-
-Norma geralmente seguida para designar as entidades
-
-    U - utente
-    S - serviço
-    P - profissional
-    I - instituição
 
