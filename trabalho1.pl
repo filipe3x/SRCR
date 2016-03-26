@@ -15,6 +15,7 @@
 :- dynamic registo/4.
 
 %% Invariantes -------------------------------------------------------------------------------------------------------------------
+%  >>>>> Invariantes para operacao de adicao <<<<<
 %
 %   - utente:
 %        Invariante Estrutural:
@@ -89,6 +90,44 @@
   comprimento(ListaProf,NProf),
   NProf==1
   ).
+
+%  >>>>> Invariantes para operacao de remocao <<<<<
+%   - utente:
+%        Invariante Estrutural:
+%           - nao pode existir o utente depois da operacao de remocao
+%        Invariante Referencial:
+%           - utentes apenas pode ser eliminado se nao exitirem registos a ele associado
+-utente(Utente)::(
+  solucoes( (Utente), ( utente(Utente) ), Lista),
+  comprimento(Lista,N),
+  N==0,
+  solucoes( (Utente,_,_,_), ( registo(Utente,_,_,_) ), ListaReg),
+  comprimento(ListaReg,NReg),
+  NReg==0
+  ).
+
+%   - instituicao:
+%        Invariante Estrutural:
+%           - nao pode existir a instituicao depois da operacao de remocao
+%        Invariante Referencial:
+%           - instituicoes apenas pode ser eliminadas se nao exitirem registos a ela associada
+%           - instituicoes apenas pode ser eliminadas se nao exitirem servicos a ela associada
+%           - instituicoes apenas pode ser eliminadas se nao exitirem profissionais a ela associada
+-instituicao(Instituicao)::(
+  solucoes( (Instituicao), ( instituicao(Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==0,
+  solucoes( (_,Instituicao,_,_), ( registo(_,Instituicao,_,_) ), ListaReg),
+  comprimento(ListaReg,NReg),
+  NReg==0,
+  solucoes( (_,Instituicao) , ( servico(_,Instituicao) ), ListaServ),
+  comprimento(ListaServ,NServ),
+  NServ==0,
+  solucoes( (_,_,Instituicao), ( profissional(_,_,Instituicao) ), ListaProf),
+  comprimento(ListaProf,NProf),
+  NProf==0
+  ).
+
 
 %% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
@@ -270,6 +309,16 @@ inserir(Termo):-retract(Termo),!,fail.
 % testar: Li -> {V,F}.
 testar([]).
 testar([I|L]):-I,testar(L).
+
+% Extensão do predicado que permite a remocao do conhecimento
+% remocao(Termo) -> {V,F}
+remocao( Termo ):-solucoes(Invariante,-Termo::Invariante,Lista),
+remover(Termo),
+testar(Lista).
+
+% remover: T -> {V,F}
+remover(Termo):-retract(Termo).
+remover(Termo):-assert(Termo),!,fail.
 
 % predicado disponibilizado pelo professor na semana5
 % solucoes X,Y,Z -> {V,F}

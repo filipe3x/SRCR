@@ -47,15 +47,13 @@ Output:
     U = [antonio_sousa] ?  
     yes
 
-Identificar as instituições onde seja prestado um serviço
+Identificar as instituições onde seja prestado um dado serviço ou conjunto de serviços
 
     | ?- instituicoesComServico(cardiologia,I).
 Output:
 
     I = [hospital_sao_marcos,hospital_braga,hospital_leiria,hospital_porto] ?
     yes
-
-Identificar as instituições onde seja prestado um conjunto de serviços
 
     | ?- instituicoesComServicos([cirurgia,nutricionismo],I).
 Output:
