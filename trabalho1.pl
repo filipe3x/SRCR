@@ -266,7 +266,7 @@ listaUtilizacaoInstituicoes( [I|TAIL_INST],  [[I,N] | XS]) :-
 
 % E2) Extensao do predicado que permite determinar a lista de utilizacao em numero de utentes de todas as instituicoes na base de conhecimento 
 %utilizacaoInstituicoes(ListaUtilizacao) -> {V,F} 
-utilizacaoInstituicoes(ListaUtilizacao) :- 
+mapaUtilizacaoInstituicoes(ListaUtilizacao) :- 
   solucoes( (Instituicao),( instituicao(Instituicao) ), ListaInstituicoes),
   listaUtilizacaoInstituicoes(ListaInstituicoes,ListaUtilizacao).
 
@@ -289,10 +289,60 @@ listaEventosMedicosUtente( [Utente|TAIL_UT],  [[Utente,N] | XS]) :-
   listaEventosMedicosUtente(TAIL_UT,XS).
 
 % E4) Extensao do predicado que permite determinar a lista de numero de eventos medicos por utente de todos os utentes na base de conhecimento 
-%eventosUtentes(ListaEventos) -> {V,F} 
+%mapaEventosMedicosUtentes(ListaEventos) -> {V,F} 
 mapaEventosMedicosPorUtente(ListaEventosUtente) :- 
   solucoes( (Utente),( utente(Utente) ), ListaUtentes),
   listaEventosMedicosUtente(ListaUtentes,ListaEventosUtente).
+
+% E5) Extensao do predicado que permite determinar o numero de eventos medicos em que um profissional esteve envolvido 
+% quantosEventosMedicosProfissional(Profissional,NumeroEventos) -> {V,F}
+quantosEventosMedicosProfissional(Profissional,NumeroEventos) :-
+  eventosMedicosProfissional(Profissional,ListaEventosMedicos),
+  comprimento(ListaEventosMedicos,NumeroEventos).
+
+% E5.0.1) Extensao do predicado que permite identificar todos os eventos medicos de um utente 
+eventosMedicosProfissional(Profissional,ListaEventosMedicos) :-
+  solucoes( (Profissional), ( registo(_,_,_,Profissional) ), ListaEventosMedicos).
+
+% E6.0.1) Extensao do predicado dada uma lista de profissionais determina a lista do numero de eventos medicos em que cada um esteve envolvido 
+%listaEventosMedicosProfissional( [Profissionais],  [[Profissional,N]]) -> {V,F}
+listaEventosMedicosProfissional( [Profissional],  [[Profissional,N]]) :- 
+  quantosEventosMedicosProfissional(Profissional,N).
+listaEventosMedicosProfissional( [Profissional|TAIL_PF],  [[Profissional,N] | XS]) :- 
+  quantosEventosMedicosProfissional(Profissional,N),
+  listaEventosMedicosProfissional(TAIL_PF,XS).
+
+% E6) Extensao do predicado que permite determinar a lista de numero de eventos medicos por utente de todos os profissionais na base de conhecimento 
+%mapaEventosMedicosPorProfissional(ListaEventosProfissional) -> {V,F} 
+mapaEventosMedicosPorProfissional(ListaEventosProfissional) :- 
+  solucoes( (Profissional),( profissional(Profissional,_,_) ), ListaProfissionaisRep),
+  removerduplicados(ListaProfissionaisRep, ListaProfissionais),
+  listaEventosMedicosProfissional(ListaProfissionais,ListaEventosProfissional).
+
+% E7) Extensao do predicado que permite determinar o numero de eventos medicos em que um servico esteve envolvido 
+% quantosEventosMedicosServico(Servico,NumeroEventos) -> {V,F}
+quantosEventosMedicosServico(Servico,NumeroEventos) :-
+  eventosMedicosServico(Servico,ListaEventosMedicos),
+  comprimento(ListaEventosMedicos,NumeroEventos).
+
+% E7.0.1) Extensao do predicado que permite identificar todos os eventos medicos de um servico
+eventosMedicosServico(Servico,ListaEventosMedicos) :-
+  solucoes( (Servico), ( registo(_,_,Servico,_) ), ListaEventosMedicos).
+
+% E8.0.1) Extensao do predicado dada uma lista de servicos determina a lista do numero de eventos medicos em que cada um esteve envolvido 
+%listaEventosMedicosServico( [Servicos],  [[Servico,N]]) -> {V,F}
+listaEventosMedicosServico( [Servico],  [[Servico,N]]) :- 
+  quantosEventosMedicosServico(Servico,N).
+listaEventosMedicosServico( [Servico|TAIL_SERV],  [[Servico,N] | XS]) :- 
+  quantosEventosMedicosServico(Servico,N),
+  listaEventosMedicosServico(TAIL_SERV,XS).
+
+% E8) Extensao do predicado que permite determinar a lista de numero de eventos medicos por servico de todos os servicos na base de conhecimento 
+%mapaEventosMedicosPorServico(ListaEventosServico) -> {V,F} 
+mapaEventosMedicosPorServico(ListaEventosServico) :- 
+  solucoes( (Servico),( servico(Servico,_) ), ListaServicosRep),
+  removerduplicados(ListaServicosRep, ListaServicos),
+  listaEventosMedicosServico(ListaServicos,ListaEventosServico).
 
 % Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 
@@ -310,13 +360,13 @@ utentesInstituicao(Instituicao,ListaUtentes) :-
 % utentesServico(Servico,ListaUtentes) -> {V,F}
 utentesServico(Servico,ListaUtentes) :- 
   solucoes(X, recorreuServico(X, Servico), ListaUtentesRep),
-  removerDuplicados(ListaUtentesRep,ListaUtentes).
+  removerduplicados(ListaUtentesRep,ListaUtentes).
 
 % 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
 % utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) -> {V,F}
 utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) :- 
   solucoes(X, registo(X, Instituicao, Servico), ListaUtentesRep),
-  removerDuplicados(ListaUtentesRep,ListaUtentes).
+  removerduplicados(ListaUtentesRep,ListaUtentes).
 
 % 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
 % instituicaoesComServico(Servico,Instituicao) -> {V,F}
