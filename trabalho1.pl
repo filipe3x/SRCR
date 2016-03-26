@@ -1,20 +1,65 @@
 
 % SICStus PROLOG: Declaracoes iniciais
-:- set_prolog_flag( unknown,fail ).
-:- set_prolog_flag( discontiguous_warnings,off ).
-:- set_prolog_flag( single_var_warnings,off ).
+%:- set_prolog_flag( unknown,fail ).
+%:- set_prolog_flag( discontiguous_warnings,off ).
+%:- set_prolog_flag( single_var_warnings,off ).
 
 % SICStus PROLOG: Definicoes iniciais
 % permitida a evolução sobre utentes, profissionais, serviços ou instituições
 
-:- op( 900,xfy,'::' ).
+:- op(900,xfy,'::').
 :- dynamic utente/1.
 :- dynamic profissional/3.
 :- dynamic servico/2.
 :- dynamic instituicao/1.
 :- dynamic registo/4.
 
-% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
+%% Invariantes -------------------------------------------------------------------------------------------------------------------
+%
+% Invariante Estrutural:
+%   nao permitir a insercao de conhecimento repetido sobre:
+%   - utente (utentes distintos nao teem o mesmo nome)
++utente(Utente)::(solucoes( (Utente), ( utente(Utente) ), Lista),
+  comprimento(Lista,N),
+  N==1).
+
+%   - instituicao (instituicoes distintas nao teem o mesmo nome)
++instituicao(Instituicao)::(solucoes( (Instituicao), ( instituicao(Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==1).
+
+%   - servico:
+%       - servicos distintos do mesmo hospital nao teem o mesmo nome
+%       - o hospital associado ao servico existe
++servico(Servico,Instituicao)::(
+  solucoes( (Servico,Instituicao) , ( servico(Servico,Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==1,
+  solucoes( (Instituicao) , ( instituicao(Instituicao) ), ListaInst),
+  comprimento(ListaInst,NInst),
+  NInst==1
+  ).
+
+%   - profissional:
+%       - profissionais distintos nao teem o mesmo nome 
+%       - o hospital a ele associado existe
+%       - o servico a ele associado existe na instituicao a ele associado
++profissional(Profissional,Servico,Instituicao)::(
+  solucoes( (Profissional), ( profissional(Profissional,Servico,Instituicao) ), Lista),
+  comprimento(Lista,N),
+  N==1,
+  solucoes( (Instituicao) , ( instituicao(Instituicao) ), ListaInst),
+  comprimento(ListaInst,NInst),
+  NInst==1,
+  solucoes( (Servico,Instituicao) , ( servico(Servico,Instituicao) ), ListaServ),
+  comprimento(ListaServ,NServ),
+  NServ==1
+  ).
+
+% Invariante Referencial:
+%
+
+%% Base de Conhecimento sobre Utentes --------------------------------------------------------------------------------------------
 
 utente(antonio_sousa).
 utente(antonio_marques).
@@ -34,29 +79,29 @@ instituicao(hospital_leiria).
 
 % Base de Conhecimento sobre Serviços -------------------------------------------------------------------------------------------
 
-servico(cardiologia, hospital_sao_marcos).
-servico(cardiologia, hospital_braga).
-servico(cardiologia, hospital_leiria).
-servico(cardiologia, hospital_porto).
+servico(cardiologia,hospital_sao_marcos).
+servico(cardiologia,hospital_braga).
+servico(cardiologia,hospital_leiria).
+servico(cardiologia,hospital_porto).
 
-servico(nutricionismo, hospital_sao_marcos).
-servico(nutricionismo, hospital_braga).
-servico(nutricionismo, hospital_leiria).
-servico(nutricionismo, hospital_porto).
+servico(nutricionismo,hospital_sao_marcos).
+servico(nutricionismo,hospital_braga).
+servico(nutricionismo,hospital_leiria).
+servico(nutricionismo,hospital_porto).
 
-servico(geriatria, hospital_porto).
+servico(geriatria,hospital_porto).
 
-servico(neurologia, hospital_porto).
+servico(neurologia,hospital_porto).
 
-servico(oncologia, hospital_porto).
+servico(oncologia,hospital_porto).
 
-servico(cirurgia, hospital_braga).
-servico(cirurgia, hospital_lisboa).
+servico(cirurgia,hospital_braga).
+servico(cirurgia,hospital_lisboa).
 
-servico(clinica_geral, hospital_braga).
-servico(clinica_geral, hospital_porto).
+servico(clinica_geral,hospital_braga).
+servico(clinica_geral,hospital_porto).
 
-servico(psiquiatria, hospital_braga).
+servico(psiquiatria,hospital_braga).
 
 % Base de Conhecimento sobre Profissionais --------------------------------------------------------------------------------------
 
@@ -96,19 +141,19 @@ registo(jorge_marques, hospital_porto, geriatria, andre_santos).
 % Predicados Extra ---------------------------------------------------------------------------------------------------------------
 % predicados criados com o intuito de facilitar as queries 'a base de conhecimento
 
-recorreuInstituicao(U, I) :- registo(U,I,_,_).
-recorreuServico(U, S) :- registo(U,_,S,_).
-recorreuProfissional(U, P) :- registo(U,_,_,P).
+recorreuInstituicao(Utente, Instituicao) :- registo(Utente,Instituicao,_,_).
+recorreuServico(Utente, Servico) :- registo(Utente,_,Servico,_).
+recorreuProfissional(Utente, Profissional) :- registo(Utente,_,_,Profissional).
 
-todosProfissionais(P) :- profissional(P,_,_).
-profissionaisNoServico(S,P) :- profissional(P,S,_).
-profissionaisNaInstituicao(I,P) :- profissional(P,_,I).
+todosProfissionais(Profissional) :- profissional(Profissional,_,_).
+profissionaisNoServico(Servico,Profissional) :- profissional(Profissional,Servico,_).
+profissionaisNaInstituicao(Instituicao,Profissional) :- profissional(Profissional,_,Instituicao).
 
 % Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 
 % 1) Extensao do predicado Identificar os serviços existentes numa instituição
 % servicosInstituicao(Instituicao,Servicos) -> {V,F}
-servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servico).
+servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servicos).
 
 % 2) Extensao do predicado Identificar os utentes de uma instituição
 % utentesInstituicao(Instituicao,Utentes) -> {V,F}
@@ -120,7 +165,7 @@ utentesServico(Servico,Utentes) :- solucoes(X, recorreuServico(X, Servico), Uten
 
 % 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
 % utentesServicoInstituicao(Servico,Instituicao,Utente) -> {V,F}
-utentesServicoInstituicao(Servico,Institiocao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
+utentesServicoInstituicao(Servico,Instituicao,Utente) :- solucoes(X, registo(X, Instituicao, Servico), Utente).
 
 % 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
 % instituicaoesComServico(Servico,Instituicao) -> {V,F}
@@ -135,7 +180,7 @@ instituicoesComServicos([Servico | Tail], Instituicao) :-
 % 6) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
 % servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
 servicosNaoEncontrados(Instituicao, Servicos) :-
-  solucoes(X, servico(X, Y), L1),
+  solucoes(X, servico(X, _), L1),
   removerduplicados(L1, R1),
   solucoes(X, servico(X, Instituicao), L2),
   intercepcao(L2, R1, R2),
@@ -161,7 +206,7 @@ utenteRecorreuServico(Utente,Servicos) :-
 
 % 8.0.3) Extensao do predicado Determinar todos os profissionais a que um utente já recorreu
 %utenteRecorreuProfissional(Utente,[Profissionais]) -> {V,F}
-utenteRecorreuProfissional(U,Profissionais) :- 
+utenteRecorreuProfissional(Utente,Profissionais) :- 
   solucoes(X, recorreuProfissional(Utente,X), ProfissionaisComDupl),
   removerduplicados(ProfissionaisComDupl, Profissionais).
 
@@ -177,42 +222,23 @@ utenteRecorreu(Utente,Lista) :-
 % 9) Registar utentes, profissionais, serviços ou instituições
 
 % 10) Remover utentes (ou profissionais ou serviços ou instituições) dos registos
-
-% Invariantes -------------------------------------------------------------------------------------------------------------------
-%
-% Invariante Estrutural: 
-%   nao permitir a insercao de conhecimento repetido sobre:
-%   - utente (utentes distintos nao teem o mesmo nome)
-+utente(Nome)::(solucoes(Nome,(utente(Nome)),S),
-          comprimento(S,N),
-                  N==1).
-%   - instituicao (instituicoes distintas nao teem o mesmo nome)
-
-%   - servico ( servicos distintos do mesmo hospital nao teem o mesmo nome)
-
-%   - profissional ( profissionais distintos nao teem o mesmo nome )
-
-
-% Invariante Referencial:
-%
-
 % Predicados que permitem evolução do conhecimento ------------------------------------------------------------------------------ 
 
 % Extensão do predicado que permite a evolucao do conhecimento
 % disponibilizada pelo professor na aula prática da semana5
-evolucao( Termo ) :- solucoes(Invariante,+Termo::Invariante,Lista),
+evolucao( Termo ):-solucoes(Invariante,+Termo::Invariante,Lista),
 inserir(Termo),
 testar(Lista).
 
 % predicado disponibilizado pelo professor na semana5
-% testar: Li -> {V,F}.
-testar([]).
-testar([I,L]):-I,testar(L).
+% inserir: T -> {V,F}
+inserir(Termo):-assert(Termo).
+inserir(Termo):-retract(Termo),!,fail.
 
 % predicado disponibilizado pelo professor na semana5
-% inserir: T -> {V,F}
-inserir(T):-assert(T).
-inserir(T):-retract(T),!,fail.
+% testar: Li -> {V,F}.
+testar([]).
+testar([I|L]):-I,testar(L).
 
 % predicado disponibilizado pelo professor na semana5
 % solucoes X,Y,Z -> {V,F}
@@ -222,7 +248,7 @@ solucoes(X,Y,Z):-findall(X,Y,Z).
 
 % Extensao do meta-predicado nao : Questao -> {V,F}
 nao(Questao) :- Questao, !, fail.
-nao(Questao).
+nao(_).
 
 % Verifica se elemento existe dentro de uma lista de elementos
 pertence(X,[X | _ ]).
@@ -230,9 +256,7 @@ pertence(X,[ _ | XS]) :- pertence(X,XS).
 
 % Nr de elementos existentes numa lista 
 comprimento([],0).
-comprimento([ _ | XS], L) :- 
-  comprimento(XS,L1),
-  L is L1 + 1.
+comprimento([_ | L],R) :- comprimento(L,N),R is N+1.
 
 % Apaga a primeira ocurrencia de um elemento numa lista
 apagar(X, [X | XS], XS).
