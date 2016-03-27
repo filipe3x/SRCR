@@ -5,7 +5,7 @@
 %:- set_prolog_flag( single_var_warnings,off ).
 
 % SICStus PROLOG: Definicoes iniciais
-% permitida a evolução sobre utentes, profissionais, serviços ou instituições
+% permitida a evolucao sobre utentes, profissionais, servicos, instituicoes, registos de actividade medica
 
 :- op(900,xfy,'::').
 :- dynamic utente/1.
@@ -29,9 +29,11 @@
 %   - instituicao:
 %        Invariante Estrutural:
 %           - instituicoes distintas nao teem o mesmo nome
-+instituicao(Instituicao)::(solucoes( (Instituicao), ( instituicao(Instituicao) ), Lista),
++instituicao(Instituicao)::(
+  solucoes( (Instituicao), ( instituicao(Instituicao) ), Lista),
   comprimento(Lista,N),
-  N==1).
+  N==1
+  ).
 
 %   - servico:
 %        Invariante Estrutural:
@@ -96,7 +98,7 @@
 %        Invariante Estrutural:
 %           - nao pode existir o utente depois da operacao de remocao
 %        Invariante Referencial:
-%           - utentes apenas pode ser eliminado se nao exitirem registos a ele associado
+%           - utentes apenas podem ser eliminado se nao existirem registos a ele associado
 -utente(Utente)::(
   solucoes( (Utente), ( utente(Utente) ), Lista),
   comprimento(Lista,N),
@@ -300,7 +302,7 @@ quantosEventosMedicosProfissional(Profissional,NumeroEventos) :-
   eventosMedicosProfissional(Profissional,ListaEventosMedicos),
   comprimento(ListaEventosMedicos,NumeroEventos).
 
-% E5.0.1) Extensao do predicado que permite identificar todos os eventos medicos de um utente 
+% E5.0.1) Extensao do predicado que permite identificar todos os eventos medicos de um profissional 
 eventosMedicosProfissional(Profissional,ListaEventosMedicos) :-
   solucoes( (Profissional), ( registo(_,_,_,Profissional) ), ListaEventosMedicos).
 
@@ -346,52 +348,53 @@ mapaEventosMedicosPorServico(ListaEventosServico) :-
 
 % Queries a base de conhecimento -------------------------------------------------------------------------------------------------
 
-% 1) Extensao do predicado Identificar os serviços existentes numa instituição
+% 1) Extensao do predicado Identificar os servicos existentes numa instituicao
 % servicosInstituicao(Instituicao,Servicos) -> {V,F}
 servicosInstituicao(Instituicao,Servicos) :- solucoes(X, servico(X, Instituicao), Servicos).
 
 % 2) Extensao do predicado Identificar os utentes de uma instituição
 % utentesInstituicao(Instituicao,ListaUtentes) -> {V,F}
-utentesInstituicao(Instituicao,ListaUtentes) :- 
+utentesInstituicao(Instituicao,ListaUtentes) :-
   solucoes(X, recorreuInstituicao(X, Instituicao), ListaUtentesRep),
   removerduplicados(ListaUtentesRep, ListaUtentes).
 
 % 3) Extensao do predicado Identificar os utentes de um determinado serviço
 % utentesServico(Servico,ListaUtentes) -> {V,F}
-utentesServico(Servico,ListaUtentes) :- 
+utentesServico(Servico,ListaUtentes) :-
   solucoes(X, recorreuServico(X, Servico), ListaUtentesRep),
   removerduplicados(ListaUtentesRep,ListaUtentes).
 
 % 4) Extensao do predicado Identificar os utentes de um determinado serviço numa instituição
 % utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) -> {V,F}
-utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) :- 
-  solucoes(X, registo(X, Instituicao, Servico), ListaUtentesRep),
+utentesServicoInstituicao(Servico,Instituicao,ListaUtentes) :-
+  solucoes( (Utente) , (registo(Utente, Instituicao, Servico,_) ), ListaUtentesRep),
   removerduplicados(ListaUtentesRep,ListaUtentes).
 
-% 5) Extensao do predicado Identificar as instituições onde seja prestado um serviço ou um conjunto de servicos
-% instituicaoesComServico(Servico,Instituicao) -> {V,F}
+% 5) Extensao do predicado Identificar as instituicoes onde seja prestado um servico ou um conjunto de servicos
+% instituicoesComServicos(Servico,Instituicao) -> {V,F}
 % instituicoesComServicos([Servicos],Instituicao) -> {V,F}
-instituicoesComServicos([], []).
-instituicoesComServicos(Servico,Instituicao) :- solucoes(X, servico(Servico,X), Instituicao).
-instituicoesComServicos([Servico | Tail], Instituicao) :- 
-  solucoes(X, servico(Servico, X), L1),
-  instituicoesComServicos(Tail, L2),
-  concatenar(L1, L2, Instituicao).
+instituicoesComServicos([ ],_).
+instituicoesComServicos(Servico,ListaInstituicoes) :- solucoes((Instituicao), (servico(Servico,Instituicao)), ListaInstituicoes).
+instituicoesComServicos([Servico | TailServicos], ListaInstituicoes) :-
+  solucoes( (Instituicao),(servico(Servico,Instituicao)), ListaInst1),
+  instituicoesComServicos(TailServicos, ListaInst2),
+  concatenar(ListaInst1, ListaInst2, ListaInstituicoes).
 
-% 6) Extensao do predicado Identificar os serviços que não se podem encontrar numa instituição
+
+% 6) Extensao do predicado Identificar os servicos que nao se podem encontrar numa instituicao
 % servicosNaoEncontrados(Instituicao,[Servicos]) -> {V,F}
-servicosNaoEncontrados(Instituicao, Servicos) :-
-  solucoes(X, servico(X, _), L1),
-  removerduplicados(L1, R1),
-  solucoes(X, servico(X, Instituicao), L2),
-  intercepcao(L2, R1, R2),
-  removerduplicados(R2, Servicos).
+servicosNaoEncontrados(Instituicao, ListaServicosNaoEncontrados) :-
+  solucoes(Servico, servico(Servico, _), L1),
+  removerduplicados(L1, ListaServicosTotal),
+  solucoes(Servico, servico(Servico, Instituicao), ListaServicosInst),
+  intercepcao(ListaServicosInst, ListaServicosTotal, R2),
+  removerduplicados(R2, ListaServicosNaoEncontrados).
 
-% 7) Extensao do predicado Determinar as instituições onde um profissional presta serviço
+% 7) Extensao do predicado Determinar as instituicoes onde um profissional presta servico
 % instituicoesProfissionalPrestaServico(Professional, [Instituicoes] ) -> {V,F}
-instituicoesProfissionalPrestaServico(Profissional, Instituicoes ) :-
-  solucoes(X,profissional(Profissional,_,X),L1),
-  removerduplicados(L1,Instituicoes).
+instituicoesProfissionalPrestaServico(Profissional,ListaInstituicoes) :-
+  solucoes((Instituicao),profissional(Profissional,_,Instituicao),ListaInstituicoesDupl),
+  removerduplicados(ListaInstituicoesDupl,ListaInstituicoes).
 
 % 8.0.1) Extensao do predicado Determinar todas as instituições a que um utente já recorreu
 % utenteRecorreuInstituicao(Utente,[Instituicoes]) -> {V,F}
@@ -525,7 +528,6 @@ adicionar(X, L, [X | L]).
 
 % Concatenacao da lista L1 com lista L2
 concatenar([], L2, L2).
-concatenar(L1, [], L1).
 concatenar([X | L1], L2, [X | R]) :- concatenar(L1, L2, R).
 
 % Inverte ordem dos elementos de uma lista
